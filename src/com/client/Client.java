@@ -12,9 +12,13 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.Map;
 
 import com.chunkserver.ChunkServer;
 import com.interfaces.ClientInterface;
+
+import javafx.util.Pair;
 
 /**
  * implementation of interfaces at the client side
@@ -26,6 +30,10 @@ public class Client implements ClientInterface {
 	static Socket ClientSocket;
 	static ObjectOutputStream WriteOutput;
 	static ObjectInputStream ReadInput;
+	
+	/* <file-handle, a list of chunk handles and their respective address of chunk servers> 
+	 to store the returned file handle */
+	Map<String, List<Pair<String, String>>> FileToChunkMap;
 	
 	public static byte[] RecvPayload(String caller, ObjectInputStream instream, int sz){
 		byte[] tmpbuf = new byte[sz];
