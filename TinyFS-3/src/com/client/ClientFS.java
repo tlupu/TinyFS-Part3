@@ -1,5 +1,9 @@
 package com.client;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 public class ClientFS {
 
 	public enum FSReturnVals {
@@ -27,7 +31,19 @@ public class ClientFS {
 	 * "CSCI485"), CreateDir("/Shahram/CSCI485/", "Lecture1")
 	 */
 	public FSReturnVals CreateDir(String src, String dirname) {
-		return null;
+		File parentDir = new File("tester/");
+		File newDir = new File(parentDir, dirname);
+		boolean isCreated = newDir.mkdirs();
+		FSReturnVals response;
+		if (isCreated) {
+			System.out.println("directory created");
+			response = FSReturnVals.DestDirExists;
+		}
+		else {
+			System.out.println("directory NOT created");
+			response = FSReturnVals.SrcDirNotExistent;
+		}
+		return response;
 	}
 
 	/**
@@ -61,7 +77,21 @@ public class ClientFS {
 	 * Example usage: ListDir("/Shahram/CSCI485")
 	 */
 	public String[] ListDir(String tgt) {
-		return null;
+		FSReturnVals response;
+		if (Files.isDirectory(Paths.get(tgt))) {
+			File folder = new File(tgt);
+			String[] folderContents = folder.list();
+			if (folderContents.length == 0) {
+				return null;
+			}
+			else {
+				return folderContents;
+			}
+		}
+		else {
+			return null;
+			//return FSReturnVals.SrcDirNotExistent;
+		}
 	}
 
 	/**
