@@ -1,6 +1,9 @@
 package com.client;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -34,37 +37,33 @@ public class ClientFS {
 	public FSReturnVals CreateDir(String src, String dirname) {
 		//ASK: every time a test is run, do we need to delete the directories that already exist
 		//because if not, the test will fail if DestDirExists is returned
-		
 		File newDir;
-		FSReturnVals response;
 		boolean isCreated;
 		//if creating the root directory
 		if (src.equals("/")) {
 			newDir = new File(dirname);
 			if (newDir.exists()) {
-				response = FSReturnVals.DestDirExists;
-				return response;
+				return FSReturnVals.DestDirExists;
 			}
-			isCreated = newDir.mkdir();
+			newDir.mkdir();
+			return FSReturnVals.Success;
 		}
 		//if creating a sub-directory
 		else {
 			File parentDir = new File(src.substring(1));
-			newDir = new File(parentDir, dirname);
-			if (newDir.exists()) {
-				response = FSReturnVals.DestDirExists;
-				return response;
+			if (!parentDir.exists()) {
+				return FSReturnVals.SrcDirNotExistent;
 			}
-			isCreated = newDir.mkdirs();
+			else {
+				newDir = new File(parentDir, dirname);
+				if (newDir.exists()) {
+					return FSReturnVals.DestDirExists;
+				}
+				newDir.mkdirs();
+				return FSReturnVals.Success;	
+			}
 		}
-		//if the new directory was created successfully
-		if (isCreated) {
-			response = FSReturnVals.Success;
-		}
-		else {
-			response = FSReturnVals.SrcDirNotExistent;
-		}
-		return response;
+
 	}
 
 	/**
@@ -76,8 +75,8 @@ public class ClientFS {
 	 */
 	public FSReturnVals DeleteDir(String src, String dirname) {
 		//ASK: what case would you return DestDirExists within this
-		//Unit test 2 says this is successful if DirNotEmpty is returned
-		FSReturnVals response;
+		//shouldnt we return success
+
 		File directory;
 		if (src.equals("/")) {
 			directory = new File(dirname);
@@ -89,18 +88,15 @@ public class ClientFS {
 		//make sure directory exists
 	    	if(!directory.exists()){
 	    		System.out.println("Does not exists: " + directory.getPath());
-	    		response = FSReturnVals.SrcDirNotExistent;
-	    		return response;
+	    		return FSReturnVals.SrcDirNotExistent;
 	    }
 	    	else{   
 	    		if(directory.list().length != 0) {
-	    	        response = FSReturnVals.DirNotEmpty;
-	    	        return response;
+	    	        return FSReturnVals.DirNotEmpty;
 	    		}     
 	    		else {
 	    			directory.delete();
-	    	        response = FSReturnVals.Success;
-	    	        return response;
+	    	        return FSReturnVals.DestDirExists;
 	    		}
 		}
 	}
@@ -114,25 +110,17 @@ public class ClientFS {
 	 * "/Shahram/CSCI485" to "/Shahram/CSCI550"
 	 */
 	public FSReturnVals RenameDir(String src, String NewName) {
-	    System.out.println(src.substring(1));
-	    System.out.println(NewName.substring(1));
-	    
-		FSReturnVals response;
 		File dir = new File(src.substring(1));
 	    if (!dir.isDirectory()) {
-	    		System.out.println("not a directory");
-	    		response = FSReturnVals.SrcDirNotExistent;
-	    		return response;
+	    		return FSReturnVals.SrcDirNotExistent;
 	    }
 	    File newDir = new File(NewName.substring(1));
 	    if (newDir.exists()) {
 	    		System.out.println("new dir already exists");
-	    		response = FSReturnVals.DestDirExists;
-	    		return response;
+	    		return FSReturnVals.DestDirExists;
 	    }
 	    dir.renameTo(newDir);
-		response = FSReturnVals.Success;
-		return response;
+		return FSReturnVals.Success;
 	}
 
 	/**
@@ -173,7 +161,25 @@ public class ClientFS {
 	 * Example usage: Createfile("/Shahram/CSCI485/Lecture1/", "Intro.pptx")
 	 */
 	public FSReturnVals CreateFile(String tgtdir, String filename) {
-		return null;
+		File directory = new File(tgtdir.substring(1));
+		if (!directory.exists()) {
+			return FSReturnVals.SrcDirNotExistent;
+		}
+		String fName = tgtdir.substring(1) + filename;
+		File file = new File(fName);
+		if (file.exists()) {
+			return FSReturnVals.FileExists;
+		}
+		else {
+			try {
+				OutputStream out = new FileOutputStream(file);
+				out.close();	
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return FSReturnVals.Success;
+		}
 	}
 
 	/**
@@ -184,7 +190,17 @@ public class ClientFS {
 	 * Example usage: DeleteFile("/Shahram/CSCI485/Lecture1/", "Intro.pptx")
 	 */
 	public FSReturnVals DeleteFile(String tgtdir, String filename) {
-		return null;
+		File directory = new File(tgtdir.substring(1));
+		if (!directory.exists()) {
+			return FSReturnVals.SrcDirNotExistent;
+		}
+		String fName = tgtdir.substring(1) + filename;
+		File file = new File(fName);
+		if (!file.exists()) {
+			return FSReturnVals.FileDoesNotExist;
+		}
+		file.delete();
+		return FSReturnVals.Success;		
 	}
 
 	/**
@@ -195,6 +211,7 @@ public class ClientFS {
 	 * Example usage: OpenFile("/Shahram/CSCI485/Lecture1/Intro.pptx", FH1)
 	 */
 	public FSReturnVals OpenFile(String FilePath, FileHandle ofh) {
+		
 		return null;
 	}
 
