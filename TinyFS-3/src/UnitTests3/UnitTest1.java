@@ -26,14 +26,14 @@ public class UnitTest1 {
 		String dir1 = "Shahram";
 		FSReturnVals fsrv = cfs.CreateDir("/", dir1);
 		if ( fsrv != FSReturnVals.Success ){
-			System.out.println("Unit test 1 result: fail!");
+			System.out.println("Unit test 1 result: fail! (1)");
     		return;
 		}
 		String[] gen1 = new String[N];
 		for(int i = 1; i <= N; i++){
 			fsrv = cfs.CreateDir("/" + dir1 + "/", String.valueOf(i));
 			if( fsrv != FSReturnVals.Success ){
-				System.out.println("Unit test 1 result: fail!");
+				System.out.println("Unit test 1 result : fail! (2)");
 	    		return;
 			}
 			gen1[i - 1] = "/" + dir1 + "/" + i;
@@ -42,7 +42,7 @@ public class UnitTest1 {
 		String[] ret1 = cfs.ListDir("/" + dir1);
 		boolean compare1 = compareArrays(gen1, ret1);
 		if(compare1 == false){
-			System.out.println("Unit test 1 result: fail!");
+			System.out.println("Unit test 1 result : fail! (3)");
     		return;
 		}
 		
@@ -50,7 +50,7 @@ public class UnitTest1 {
 		String dir2 = "Ghandeharizadeh";
 		fsrv = cfs.CreateDir("/", dir2);
 		if( fsrv != FSReturnVals.Success ){
-			System.out.println("Unit test 1 result: fail!");
+			System.out.println("Unit test 1 result : fail! (4)");
     		return;
 		}
 		String[] gen2 = new String[N];
@@ -58,7 +58,7 @@ public class UnitTest1 {
 		for(int i = 1; i <= N; i++){
 			fsrv = cfs.CreateDir(prev + "/", String.valueOf(i));
 			if( fsrv != FSReturnVals.Success ){
-				System.out.println("Unit test 1 result: fail!");
+				System.out.println("Unit test 1 result : fail! (5)");
 	    		return;
 			}
 			prev = prev + "/" + i;
@@ -68,7 +68,7 @@ public class UnitTest1 {
 		ret1 = cfs.ListDir("/" + dir2);
 		compare1 = compareArrays(gen2, ret1);
 		if(compare1 == false){
-			System.out.println("Unit test 1 result: fail!");
+			System.out.println("Unit test 1 result: fail! (6)");
     		return;
 		}
 		
@@ -76,6 +76,14 @@ public class UnitTest1 {
 	}
 	
 	public static boolean compareArrays(String[] arr1, String[] arr2) {
+		System.out.println("ARRAY 1");
+		for (int i = 0; i < arr1.length; i++) {
+			System.out.println(arr1[i]);
+		}
+		System.out.println("ARRAY 2");
+		for (int i = 0; i < arr2.length; i++) {
+			System.out.println(arr2[i]);
+		}
 	    HashSet<String> set1 = new HashSet<String>(Arrays.asList(arr1));
 	    HashSet<String> set2 = new HashSet<String>(Arrays.asList(arr2));
 	    return set1.equals(set2);
