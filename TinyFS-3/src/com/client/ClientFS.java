@@ -3,9 +3,10 @@ package com.client;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class ClientFS {
-
+	public static ArrayList<String> directories;
 	public enum FSReturnVals {
 		DirExists, // Returned by CreateDir when directory exists
 		DirNotEmpty, //Returned when a non-empty directory is deleted
@@ -31,16 +32,36 @@ public class ClientFS {
 	 * "CSCI485"), CreateDir("/Shahram/CSCI485/", "Lecture1")
 	 */
 	public FSReturnVals CreateDir(String src, String dirname) {
-		File parentDir = new File("tester/");
-		File newDir = new File(parentDir, dirname);
-		boolean isCreated = newDir.mkdirs();
+		//ASK: every time a test is run, do we need to delete the directories that already exist
+		//because if not, the test will fail if DestDirExists is returned
+		
+		File newDir;
 		FSReturnVals response;
+		boolean isCreated;
+		//if creating the root directory
+		if (src.equals("/")) {
+			newDir = new File(dirname);
+			if (newDir.exists()) {
+				response = FSReturnVals.DestDirExists;
+				return response;
+			}
+			isCreated = newDir.mkdir();
+		}
+		//if creating a sub-directory
+		else {
+			File parentDir = new File(src.substring(1));
+			newDir = new File(parentDir, dirname);
+			if (newDir.exists()) {
+				response = FSReturnVals.DestDirExists;
+				return response;
+			}
+			isCreated = newDir.mkdirs();
+		}
+		//if the new directory was created successfully
 		if (isCreated) {
-			System.out.println("directory created");
-			response = FSReturnVals.DestDirExists;
+			response = FSReturnVals.Success;
 		}
 		else {
-			System.out.println("directory NOT created");
 			response = FSReturnVals.SrcDirNotExistent;
 		}
 		return response;
@@ -54,7 +75,34 @@ public class ClientFS {
 	 * Example usage: DeleteDir("/Shahram/CSCI485/", "Lecture1")
 	 */
 	public FSReturnVals DeleteDir(String src, String dirname) {
-		return null;
+		//ASK: what case would you return DestDirExists within this
+		//Unit test 2 says this is successful if DirNotEmpty is returned
+		FSReturnVals response;
+		File directory;
+		if (src.equals("/")) {
+			directory = new File(dirname);
+		}
+		else {
+			File parentDir = new File(src.substring(1));
+			directory = new File(parentDir, dirname);			
+		}
+		//make sure directory exists
+	    	if(!directory.exists()){
+	    		System.out.println("Does not exists: " + directory.getPath());
+	    		response = FSReturnVals.SrcDirNotExistent;
+	    		return response;
+	    }
+	    	else{   
+	    		if(directory.list().length != 0) {
+	    	        response = FSReturnVals.DirNotEmpty;
+	    	        return response;
+	    		}     
+	    		else {
+	    			directory.delete();
+	    	        response = FSReturnVals.Success;
+	    	        return response;
+	    		}
+		}
 	}
 
 	/**
@@ -66,7 +114,25 @@ public class ClientFS {
 	 * "/Shahram/CSCI485" to "/Shahram/CSCI550"
 	 */
 	public FSReturnVals RenameDir(String src, String NewName) {
-		return null;
+	    System.out.println(src.substring(1));
+	    System.out.println(NewName.substring(1));
+	    
+		FSReturnVals response;
+		File dir = new File(src.substring(1));
+	    if (!dir.isDirectory()) {
+	    		System.out.println("not a directory");
+	    		response = FSReturnVals.SrcDirNotExistent;
+	    		return response;
+	    }
+	    File newDir = new File(NewName.substring(1));
+	    if (newDir.exists()) {
+	    		System.out.println("new dir already exists");
+	    		response = FSReturnVals.DestDirExists;
+	    		return response;
+	    }
+	    dir.renameTo(newDir);
+		response = FSReturnVals.Success;
+		return response;
 	}
 
 	/**
@@ -77,22 +143,27 @@ public class ClientFS {
 	 * Example usage: ListDir("/Shahram/CSCI485")
 	 */
 	public String[] ListDir(String tgt) {
-		FSReturnVals response;
-		if (Files.isDirectory(Paths.get(tgt))) {
-			File folder = new File(tgt);
-			String[] folderContents = folder.list();
-			if (folderContents.length == 0) {
-				return null;
-			}
-			else {
-				return folderContents;
-			}
-		}
-		else {
-			return null;
-			//return FSReturnVals.SrcDirNotExistent;
-		}
+		//ASK: how to return SrcDirNotExistent if the return type is an array of Strings
+		directories = new ArrayList<String> ();
+		listf(tgt.substring(1));
+		System.out.println(ClientFS.directories.size());
+		String [] directories = ClientFS.directories.toArray(new String[ClientFS.directories.size()]);
+		return directories;
 	}
+	
+	public void listf(String directoryName) {
+	    File directory = new File(directoryName);
+	    // get all the files from a directory
+	    File[] fList = directory.listFiles();
+	    for (File file : fList) {
+			String filePath = "/" + file.getPath();
+	        ClientFS.directories.add(filePath);
+	        if (file.isDirectory()) {
+	        		listf(file.getPath());
+	        }
+	    }
+	}
+
 
 	/**
 	 * Creates the specified filename in the target directory Returns
