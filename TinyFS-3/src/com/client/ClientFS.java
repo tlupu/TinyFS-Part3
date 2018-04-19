@@ -3,16 +3,46 @@ package com.client;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+import com.chunkserver.ChunkServer;
 import com.master.Master;
 
 public class ClientFS {
 	public static ArrayList<String> directories;
 	Master master = new Master();
+	
+	public static ChunkServer cs = null;
+	public Socket ClientSocket;
+	public ObjectOutputStream WriteOutput;
+	public ObjectInputStream ReadInput;
+	String hostname = "localhost";
+	
+	public ClientFS() {
+		try {
+			ClientSocket = new Socket(hostname, 9890);
+			System.out.println("initialized socket");
+			
+			WriteOutput = new ObjectOutputStream(ClientSocket.getOutputStream());
+			ReadInput = new ObjectInputStream(ClientSocket.getInputStream());
+			System.out.println("initialized WriteOutput and ReadInput");
+			
+		} catch (UnknownHostException e) {
+			System.out.println("Couldn't find host: " + hostname);
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("Could not get I/O for the connection to: " + hostname);
+			e.printStackTrace();
+		}
+	}
 	
 	public enum FSReturnVals {
 		DirExists, // Returned by CreateDir when directory exists

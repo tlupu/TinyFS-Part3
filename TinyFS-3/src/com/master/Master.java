@@ -29,10 +29,8 @@ public class Master {
 	public ObjectOutputStream WriteOutput;
 	public ObjectInputStream ReadInput;
 	String hostname = "localhost";
-	
-	
-	/* HashMap. <absolute_path, list<file object>> 
-	  ex: <”/usr”, [“bin”, “local”, “lib”]> */
+
+	/* HashMap. <absolute_path, list<file object>> */
 	Map<String, List<File>>  FileNamespace;
 	public static ArrayList<String> directories;
 	
@@ -45,47 +43,56 @@ public class Master {
 		Socket clientSocket = null;
 		
 		try {
-			serverSocket = new ServerSocket(9877);
+			serverSocket = new ServerSocket(9890);
 			System.out.println("Initialized server socket");
 		} catch (IOException e) {
 			System.out.println("Could not get I/O for the connection to: " + hostname);
 			e.printStackTrace();
 		}
 		
-		/* master needs to process requests from client */
-		while (true) {
-			
-			try {
-				ClientSocket = serverSocket.accept();
-				System.out.println("Accepted server socket");
-				WriteOutput = new ObjectOutputStream(ClientSocket.getOutputStream());
-				ReadInput = new ObjectInputStream(ClientSocket.getInputStream());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
-			while (!clientSocket.isClosed()) {
-				
-				try {
-					String request;
-					// read request from input stream
-					request = ReadInput.readUTF();
-					
-					if (request == "CreateFile") {
-						String tatdir = ReadInput.readUTF();
-						String filename = ReadInput.readUTF();
-						CreateFile(tatdir, filename);
-					}
-					else if (request == "OpenFile") {
-						String filepath = ReadInput.readUTF();
-						FileHandle filehandle;
-						OpenFile(filepath, filehandle);
-					}
-				} catch (IOException e) {
-					break;
-				}
-			}
+		try {
+			ClientSocket = serverSocket.accept();
+			System.out.println("Accepted server socket");
+			WriteOutput = new ObjectOutputStream(ClientSocket.getOutputStream());
+			ReadInput = new ObjectInputStream(ClientSocket.getInputStream());
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+		
+		/* master needs to process requests from client */
+//		while (true) {
+//			
+//			try {
+//				ClientSocket = serverSocket.accept();
+//				System.out.println("Accepted server socket");
+//				WriteOutput = new ObjectOutputStream(ClientSocket.getOutputStream());
+//				ReadInput = new ObjectInputStream(ClientSocket.getInputStream());
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//			
+//			while (!clientSocket.isClosed()) {
+//				
+//				try {
+//					String request;
+//					// read request from input stream
+//					request = ReadInput.readUTF();
+//					
+//					if (request == "CreateFile") {
+//						String tatdir = ReadInput.readUTF();
+//						String filename = ReadInput.readUTF();
+//						CreateFile(tatdir, filename);
+//					}
+//					else if (request == "OpenFile") {
+//						String filepath = ReadInput.readUTF();
+//						FileHandle filehandle;
+//						OpenFile(filepath, filehandle);
+//					}
+//				} catch (IOException e) {
+//					break;
+//				}
+//			}
+//		}
 	}
 	
 	public FSReturnVals CreateDir(String tgtdir, String filename) {
@@ -251,7 +258,7 @@ public class Master {
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-
+		Master master = new Master();
 	}
 
 }
