@@ -28,7 +28,7 @@ public class ClientFS {
 	
 	public ClientFS() {
 		try {
-			ClientSocket = new Socket(hostname, 9890);
+			ClientSocket = new Socket(hostname, 9000);
 			System.out.println("initialized socket");
 			
 			WriteOutput = new ObjectOutputStream(ClientSocket.getOutputStream());
