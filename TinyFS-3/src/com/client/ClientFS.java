@@ -3,16 +3,46 @@ package com.client;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+import com.chunkserver.ChunkServer;
 import com.master.Master;
 
 public class ClientFS {
 	public static ArrayList<String> directories;
 	Master master = new Master();
+	
+	public static ChunkServer cs = null;
+	public Socket ClientSocket;
+	public ObjectOutputStream WriteOutput;
+	public ObjectInputStream ReadInput;
+	String hostname = "localhost";
+	
+	public ClientFS() {
+		try {
+			ClientSocket = new Socket(hostname, 9000);
+			System.out.println("initialized socket");
+			
+			WriteOutput = new ObjectOutputStream(ClientSocket.getOutputStream());
+			ReadInput = new ObjectInputStream(ClientSocket.getInputStream());
+			System.out.println("initialized WriteOutput and ReadInput");
+			
+		} catch (UnknownHostException e) {
+			System.out.println("Couldn't find host: " + hostname);
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("Could not get I/O for the connection to: " + hostname);
+			e.printStackTrace();
+		}
+	}
 	
 	public enum FSReturnVals {
 		DirExists, // Returned by CreateDir when directory exists
@@ -42,35 +72,24 @@ public class ClientFS {
 		//ASK: every time a test is run, do we need to delete the directories that already exist
 		//because if not, the test will fail if DestDirExists is returned
 		
-		return master.CreateDir(src, dirname);
+		// return master.CreateDir(src, dirname);
 		
-//		File newDir;
-//		boolean isCreated;
-//		//if creating the root directory
-//		if (src.equals("/")) {
-//			newDir = new File(dirname);
-//			if (newDir.exists()) {
-//				return FSReturnVals.DestDirExists;
-//			}
-//			newDir.mkdir();
-//			return FSReturnVals.Success;
-//		}
-//		//if creating a sub-directory
-//		else {
-//			File parentDir = new File(src.substring(1));
-//			if (!parentDir.exists()) {
-//				return FSReturnVals.SrcDirNotExistent;
-//			}
-//			else {
-//				newDir = new File(parentDir, dirname);
-//				if (newDir.exists()) {
-//					return FSReturnVals.DestDirExists;
-//				}
-//				newDir.mkdirs();
-//				return FSReturnVals.Success;	
-//			}
-//		}
-
+		try {
+			if (ClientSocket != null && WriteOutput != null && ReadInput != null) {
+				// send the request to create a directory
+				WriteOutput.writeUTF("CreateDir");
+				WriteOutput.writeUTF(src);
+				WriteOutput.writeUTF(dirname);
+			}
+			
+			// look into how to read an enum
+			FSReturnVals response = ReadInput.readObject();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return FSReturnVals.Fail;
 	}
 
 	/**
@@ -83,31 +102,25 @@ public class ClientFS {
 	public FSReturnVals DeleteDir(String src, String dirname) {
 		//ASK: what case would you return DestDirExists within this
 		//shouldnt we return success
-			
-		return master.DeleteDir(src, dirname);
 		
-//		File directory;
-//		if (src.equals("/")) {
-//			directory = new File(dirname);
-//		}
-//		else {
-//			File parentDir = new File(src.substring(1));
-//			directory = new File(parentDir, dirname);			
-//		}
-//		//make sure directory exists
-//	    	if(!directory.exists()){
-//	    		System.out.println("Does not exists: " + directory.getPath());
-//	    		return FSReturnVals.SrcDirNotExistent;
-//	    }
-//	    	else{   
-//	    		if(directory.list().length != 0) {
-//	    	        return FSReturnVals.DirNotEmpty;
-//	    		}     
-//	    		else {
-//	    			directory.delete();
-//	    	        return FSReturnVals.DestDirExists;
-//	    		}
-//		}
+		// return master.DeleteDir(src, dirname);
+		
+		try {
+			if (ClientSocket != null && WriteOutput != null && ReadInput != null) {
+				// send the request to create a directory
+				WriteOutput.writeUTF("DeleteDir");
+				WriteOutput.writeUTF(src);
+				WriteOutput.writeUTF(dirname);
+			}
+			
+			// look into how to read an enum
+			FSReturnVals response = ReadInput.readObject();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return FSReturnVals.Fail;
 	}
 
 	/**
@@ -120,19 +133,24 @@ public class ClientFS {
 	 */
 	public FSReturnVals RenameDir(String src, String NewName) {
 		
-		return master.RenameDir(src, NewName);
+		// return master.RenameDir(src, NewName);
 		
-//		File dir = new File(src.substring(1));
-//	    if (!dir.isDirectory()) {
-//	    		return FSReturnVals.SrcDirNotExistent;
-//	    }
-//	    File newDir = new File(NewName.substring(1));
-//	    if (newDir.exists()) {
-//	    		System.out.println("new dir already exists");
-//	    		return FSReturnVals.DestDirExists;
-//	    }
-//	    dir.renameTo(newDir);
-//		return FSReturnVals.Success;
+		try {
+			if (ClientSocket != null && WriteOutput != null && ReadInput != null) {
+				// send the request to create a directory
+				WriteOutput.writeUTF("RenameDir");
+				WriteOutput.writeUTF(src);
+				WriteOutput.writeUTF(NewName);
+			}
+			
+			// look into how to read an enum
+			FSReturnVals response = ReadInput.readObject();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return FSReturnVals.Fail;
 	}
 
 	/**
@@ -144,28 +162,24 @@ public class ClientFS {
 	 */
 	public String[] ListDir(String tgt) {
 		
-		return master.ListDir(tgt);
+		// return master.ListDir(tgt);
 		
-//		//ASK: how to return SrcDirNotExistent if the return type is an array of Strings
-//		directories = new ArrayList<String> ();
-//		listf(tgt.substring(1));
-//		System.out.println(ClientFS.directories.size());
-//		String [] directories = ClientFS.directories.toArray(new String[ClientFS.directories.size()]);
-//		return directories;
+		try {
+			if (ClientSocket != null && WriteOutput != null && ReadInput != null) {
+				// send the request to create a directory
+				WriteOutput.writeUTF("ListDir");
+				WriteOutput.writeUTF(tgt);
+			}
+			
+			// look into how to read a string array
+			String[] response = ReadInput.readObject();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
 	}
-	
-//	public void listf(String directoryName) {
-//	    File directory = new File(directoryName);
-//	    // get all the files from a directory
-//	    File[] fList = directory.listFiles();
-//	    for (File file : fList) {
-//			String filePath = "/" + file.getPath();
-//	        ClientFS.directories.add(filePath);
-//	        if (file.isDirectory()) {
-//	        		listf(file.getPath());
-//	        }
-//	    }
-//	}
 
 
 	/**
@@ -177,27 +191,23 @@ public class ClientFS {
 	 */
 	public FSReturnVals CreateFile(String tgtdir, String filename) {
 		
-		return master.CreateFile(tgtdir, filename);
+		// return master.CreateFile(tgtdir, filename);
 		
-//		File directory = new File(tgtdir.substring(1));
-//		if (!directory.exists()) {
-//			return FSReturnVals.SrcDirNotExistent;
-//		}
-//		String fName = tgtdir.substring(1) + filename;
-//		File file = new File(fName);
-//		if (file.exists()) {
-//			return FSReturnVals.FileExists;
-//		}
-//		else {
-//			try {
-//				OutputStream out = new FileOutputStream(file);
-//				out.close();	
-//			} catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			return FSReturnVals.Success;
-//		}
+		try {
+			if (ClientSocket != null && WriteOutput != null && ReadInput != null) {
+				// send the request to create a directory
+				WriteOutput.writeUTF("CreateFile");
+				WriteOutput.writeUTF(tgtdir);
+				WriteOutput.writeUTF(filename);
+			}
+		
+			// look into how to read an enum
+			FSReturnVals response = ReadInput.readObject();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	
+		return FSReturnVals.Fail;
 	}
 
 	/**
@@ -209,19 +219,24 @@ public class ClientFS {
 	 */
 	public FSReturnVals DeleteFile(String tgtdir, String filename) {
 		
-		return master.DeleteFile(tgtdir, filename);
+		// return master.DeleteFile(tgtdir, filename);
 		
-//		File directory = new File(tgtdir.substring(1));
-//		if (!directory.exists()) {
-//			return FSReturnVals.SrcDirNotExistent;
-//		}
-//		String fName = tgtdir.substring(1) + filename;
-//		File file = new File(fName);
-//		if (!file.exists()) {
-//			return FSReturnVals.FileDoesNotExist;
-//		}
-//		file.delete();
-//		return FSReturnVals.Success;		
+		try {
+			if (ClientSocket != null && WriteOutput != null && ReadInput != null) {
+				// send the request to create a directory
+				WriteOutput.writeUTF("DeleteFile");
+				WriteOutput.writeUTF(tgtdir);
+				WriteOutput.writeUTF(filename);
+			}
+		
+			// look into how to read an enum
+			FSReturnVals response = ReadInput.readObject();
+		
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	
+		return FSReturnVals.Fail;
 	}
 
 	/**
@@ -233,7 +248,24 @@ public class ClientFS {
 	 */
 	public FSReturnVals OpenFile(String FilePath, FileHandle ofh) {
 		
-		return master.OpenFile(FilePath, ofh);
+		// return master.OpenFile(FilePath, ofh);
+		
+		try {
+			if (ClientSocket != null && WriteOutput != null && ReadInput != null) {
+				// send the request to create a directory
+				WriteOutput.writeUTF("OpenFile");
+				WriteOutput.writeUTF(FilePath);
+				WriteOutput.writeObject(ofh);
+			}
+		
+			// look into how to read an enum
+			FSReturnVals response = ReadInput.readObject();
+		
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	
+		return FSReturnVals.Fail;
 	}
 
 	/**
@@ -242,7 +274,24 @@ public class ClientFS {
 	 * Example usage: CloseFile(FH1)
 	 */
 	public FSReturnVals CloseFile(FileHandle ofh) {
-		return master.CloseFile(ofh);
+		
+		// return master.CloseFile(ofh);
+		
+		try {
+			if (ClientSocket != null && WriteOutput != null && ReadInput != null) {
+				// send the request to create a directory
+				WriteOutput.writeUTF("CloseFile");
+				WriteOutput.writeObject(ofh);
+			}
+		
+			// look into how to read an enum
+			FSReturnVals response = ReadInput.readObject();
+		
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	
+		return FSReturnVals.Fail;
 	}
 
 }

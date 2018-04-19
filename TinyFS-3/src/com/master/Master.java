@@ -1,8 +1,16 @@
 package com.master;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,11 +23,14 @@ import com.client.ClientFS.FSReturnVals;
 import javafx.util.Pair;
 
 public class Master {
-	// testing new branch!
 	
-	
-	/* HashMap. <absolute_path, list<file object>> 
-	  ex: <”/usr”, [“bin”, “local”, “lib”]> */
+	ServerSocket serverSocket;
+	Socket ClientSocket;
+	public ObjectOutputStream WriteOutput;
+	public ObjectInputStream ReadInput;
+	String hostname = "localhost";
+
+	/* HashMap. <absolute_path, list<file object>> */
 	Map<String, List<File>>  FileNamespace;
 	public static ArrayList<String> directories;
 	
@@ -29,30 +40,94 @@ public class Master {
 	
 	public Master() {
 		
+		Socket clientSocket = null;
+		
+		try {
+			serverSocket = new ServerSocket(9000);
+			System.out.println("Initialized server socket");
+		} catch (IOException e) {
+			System.out.println("Could not get I/O for the connection to: " + hostname);
+			e.printStackTrace();
+		}
+		
+		try {
+			ClientSocket = serverSocket.accept();
+			System.out.println("Accepted server socket");
+			WriteOutput = new ObjectOutputStream(ClientSocket.getOutputStream());
+			ReadInput = new ObjectInputStream(ClientSocket.getInputStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		/* master needs to process requests from client */
 //		while (true) {
-//			String request;
-//			// read request from input stream
-//			request = is.readUTF();
 //			
-//			if (request == "CreateFile") {
-//				String tatdir = is.readUTF();
-//				String filename = is.readUTF();
-//				ProcessCreateFile(tatdir, filename);
+//			try {
+//				ClientSocket = serverSocket.accept();
+//				System.out.println("Accepted server socket");
+//				WriteOutput = new ObjectOutputStream(ClientSocket.getOutputStream());
+//				ReadInput = new ObjectInputStream(ClientSocket.getInputStream());
+//			} catch (IOException e) {
+//				e.printStackTrace();
 //			}
-//			else if (request == "OpenFile") {
-//				String filepath = is.readUTF();
-//				FileHandle filehandle = "";
-//				ProcessOpenFile(filepath, filehandle);
+//			
+//			while (!clientSocket.isClosed()) {
+//				
+//				try {
+//					String request;
+//					// read request from input stream
+//					request = ReadInput.readUTF();
+//					
+//					if (request == "CreateDir") {
+//						// CreateDir(String src, String dirname)
+//						String src = ReadInput.readUTF();
+//						String dirname = ReadInput.readUTF();
+//						CreateDir(src, dirname);
+//					}
+//					else if (request == "DeleteDir") {
+//						// DeleteDir(String src, String dirname)
+//						String src = ReadInput.readUTF();
+//						String dirname = ReadInput.readUTF();
+//						DeleteDir(src, dirname);
+//					}
+//					else if (request == "RenameDir") {
+//						// RenameDir(String src, String NewName)
+//						String src = ReadInput.readUTF();
+//						String NewName = ReadInput.readUTF();
+//						RenameDir(src, NewName);
+//					}
+//					else if (request == "ListDir") {
+//						// ListDir(String tgt)
+//						String tgt = ReadInput.readUTF();
+//						ListDir(tgt);
+//					}
+//					else if (request == "CreateFile") {
+//						String tatdir = ReadInput.readUTF();
+//						String filename = ReadInput.readUTF();
+//						CreateFile(tatdir, filename);
+//					}
+//					else if (request == "DeleteFile") {
+//						// DeleteFile(String tgtdir, String filename)
+//						String tatdir = ReadInput.readUTF();
+//						String filename = ReadInput.readUTF();
+//						DeleteFile(tatdir, filename);
+//					}
+//					else if (request == "OpenFile") {
+//						String filepath = ReadInput.readUTF();
+//						// figure out how to read object
+//						FileHandle filehandle = ReadInput.readObject();
+//						OpenFile(filepath, filehandle);
+//					}
+//				} catch (IOException e) {
+//					break;
+//				}
 //			}
 //		}
-		
 	}
 	
 	public FSReturnVals CreateDir(String tgtdir, String filename) {
 		
 		File newDir;
-		boolean isCreated;
 		//if creating the root directory
 		if (tgtdir.equals("/")) {
 			newDir = new File(filename);
@@ -213,7 +288,7 @@ public class Master {
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-
+		Master master = new Master();
 	}
 
 }
