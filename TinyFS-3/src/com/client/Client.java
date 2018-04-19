@@ -22,7 +22,7 @@ import com.interfaces.ClientInterface;
  *
  */
 public class Client implements ClientInterface {
-	static int ServerPort = 0;
+	static int ServerPort = 9877;
 	static Socket ClientSocket;
 	static ObjectOutputStream WriteOutput;
 	static ObjectInputStream ReadInput;
