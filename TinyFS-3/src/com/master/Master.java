@@ -78,14 +78,44 @@ public class Master {
 					// read request from input stream
 					request = ReadInput.readUTF();
 					
-					if (request == "CreateFile") {
+					if (request == "CreateDir") {
+						// CreateDir(String src, String dirname)
+						String src = ReadInput.readUTF();
+						String dirname = ReadInput.readUTF();
+						CreateDir(src, dirname);
+					}
+					else if (request == "DeleteDir") {
+						// DeleteDir(String src, String dirname)
+						String src = ReadInput.readUTF();
+						String dirname = ReadInput.readUTF();
+						DeleteDir(src, dirname);
+					}
+					else if (request == "RenameDir") {
+						// RenameDir(String src, String NewName)
+						String src = ReadInput.readUTF();
+						String NewName = ReadInput.readUTF();
+						RenameDir(src, NewName);
+					}
+					else if (request == "ListDir") {
+						// ListDir(String tgt)
+						String tgt = ReadInput.readUTF();
+						ListDir(tgt);
+					}
+					else if (request == "CreateFile") {
 						String tatdir = ReadInput.readUTF();
 						String filename = ReadInput.readUTF();
 						CreateFile(tatdir, filename);
 					}
+					else if (request == "DeleteFile") {
+						// DeleteFile(String tgtdir, String filename)
+						String tatdir = ReadInput.readUTF();
+						String filename = ReadInput.readUTF();
+						DeleteFile(tatdir, filename);
+					}
 					else if (request == "OpenFile") {
 						String filepath = ReadInput.readUTF();
-						FileHandle filehandle;
+						// figure out how to read object
+						FileHandle filehandle = ReadInput.readObject();
 						OpenFile(filepath, filehandle);
 					}
 				} catch (IOException e) {
