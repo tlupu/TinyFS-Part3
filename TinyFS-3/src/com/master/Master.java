@@ -50,49 +50,49 @@ public class Master {
 			e.printStackTrace();
 		}
 		
-		try {
-			ClientSocket = serverSocket.accept();
-			System.out.println("Accepted server socket");
-			WriteOutput = new ObjectOutputStream(ClientSocket.getOutputStream());
-			ReadInput = new ObjectInputStream(ClientSocket.getInputStream());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			ClientSocket = serverSocket.accept();
+//			System.out.println("Accepted server socket");
+//			WriteOutput = new ObjectOutputStream(ClientSocket.getOutputStream());
+//			ReadInput = new ObjectInputStream(ClientSocket.getInputStream());
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		
 		/* master needs to process requests from client */
-//		while (true) {
-//			
-//			try {
-//				ClientSocket = serverSocket.accept();
-//				System.out.println("Accepted server socket");
-//				WriteOutput = new ObjectOutputStream(ClientSocket.getOutputStream());
-//				ReadInput = new ObjectInputStream(ClientSocket.getInputStream());
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//			
-//			while (!clientSocket.isClosed()) {
-//				
-//				try {
-//					String request;
-//					// read request from input stream
-//					request = ReadInput.readUTF();
-//					
-//					if (request == "CreateFile") {
-//						String tatdir = ReadInput.readUTF();
-//						String filename = ReadInput.readUTF();
-//						CreateFile(tatdir, filename);
-//					}
-//					else if (request == "OpenFile") {
-//						String filepath = ReadInput.readUTF();
-//						FileHandle filehandle;
-//						OpenFile(filepath, filehandle);
-//					}
-//				} catch (IOException e) {
-//					break;
-//				}
-//			}
-//		}
+		while (true) {
+			
+			try {
+				ClientSocket = serverSocket.accept();
+				System.out.println("Accepted server socket");
+				WriteOutput = new ObjectOutputStream(ClientSocket.getOutputStream());
+				ReadInput = new ObjectInputStream(ClientSocket.getInputStream());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			while (!clientSocket.isClosed()) {
+				
+				try {
+					String request;
+					// read request from input stream
+					request = ReadInput.readUTF();
+					
+					if (request == "CreateFile") {
+						String tatdir = ReadInput.readUTF();
+						String filename = ReadInput.readUTF();
+						CreateFile(tatdir, filename);
+					}
+					else if (request == "OpenFile") {
+						String filepath = ReadInput.readUTF();
+						FileHandle filehandle;
+						OpenFile(filepath, filehandle);
+					}
+				} catch (IOException e) {
+					break;
+				}
+			}
+		}
 	}
 	
 	public FSReturnVals CreateDir(String tgtdir, String filename) {
