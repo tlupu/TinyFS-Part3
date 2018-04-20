@@ -118,12 +118,18 @@ public class ClientFS {
 				WriteOutput.writeUTF("DeleteDir");
 				WriteOutput.writeUTF(src);
 				WriteOutput.writeUTF(dirname);
+				
+				WriteOutput.flush();
 			}
 			
-			// look into how to read an enum
-			FSReturnVals response = ReadInput.readObject();
+			FSReturnVals response = (FSReturnVals) ReadInput.readUnshared();
+			System.out.println("recieved response from master in deletedir");
+			return response;
 			
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -148,12 +154,18 @@ public class ClientFS {
 				WriteOutput.writeUTF("RenameDir");
 				WriteOutput.writeUTF(src);
 				WriteOutput.writeUTF(NewName);
+				
+				WriteOutput.flush();
 			}
 			
-			// look into how to read an enum
-			FSReturnVals response = ReadInput.readObject();
+			FSReturnVals response = (FSReturnVals) ReadInput.readUnshared();
+			System.out.println("recieved response from master in renamedir");
+			return response;
 			
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -176,6 +188,7 @@ public class ClientFS {
 				// send the request to create a directory
 				WriteOutput.writeChar('L');
 				WriteOutput.writeUTF(tgt);
+				
 				WriteOutput.flush();
 				System.out.println("sent data to master in listdir");
 			}
@@ -213,14 +226,21 @@ public class ClientFS {
 		try {
 			if (ClientSocket != null && WriteOutput != null && ReadInput != null) {
 				// send the request to create a directory
-				WriteOutput.writeUTF("CreateFile");
+				WriteOutput.writeChar('c');
 				WriteOutput.writeUTF(tgtdir);
 				WriteOutput.writeUTF(filename);
+				
+				WriteOutput.flush();
 			}
 		
-			// look into how to read an enum
-			FSReturnVals response = ReadInput.readObject();
+			FSReturnVals response = (FSReturnVals) ReadInput.readUnshared();
+			System.out.println("recieved response from master in createfile");
+			return response;
+			
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	
@@ -241,15 +261,21 @@ public class ClientFS {
 		try {
 			if (ClientSocket != null && WriteOutput != null && ReadInput != null) {
 				// send the request to create a directory
-				WriteOutput.writeUTF("DeleteFile");
+				WriteOutput.writeChar('d');
 				WriteOutput.writeUTF(tgtdir);
 				WriteOutput.writeUTF(filename);
+				
+				WriteOutput.flush();
 			}
 		
-			// look into how to read an enum
-			FSReturnVals response = ReadInput.readObject();
+			FSReturnVals response = (FSReturnVals) ReadInput.readUnshared();
+			System.out.println("recieved response from master in deletefile");
+			return response;
 		
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	
@@ -270,15 +296,21 @@ public class ClientFS {
 		try {
 			if (ClientSocket != null && WriteOutput != null && ReadInput != null) {
 				// send the request to create a directory
-				WriteOutput.writeUTF("OpenFile");
+				WriteOutput.writeChar('o');
 				WriteOutput.writeUTF(FilePath);
 				WriteOutput.writeObject(ofh);
+				
+				WriteOutput.flush();
 			}
 		
-			// look into how to read an enum
-			FSReturnVals response = ReadInput.readObject();
+			FSReturnVals response = (FSReturnVals) ReadInput.readUnshared();
+			System.out.println("recieved response from master in openfile");
+			return response;
 		
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	
@@ -297,14 +329,18 @@ public class ClientFS {
 		try {
 			if (ClientSocket != null && WriteOutput != null && ReadInput != null) {
 				// send the request to create a directory
-				WriteOutput.writeUTF("CloseFile");
+				WriteOutput.writeChar('x');
 				WriteOutput.writeObject(ofh);
 			}
 		
-			// look into how to read an enum
-			FSReturnVals response = ReadInput.readObject();
+			FSReturnVals response = (FSReturnVals) ReadInput.readUnshared();
+			System.out.println("recieved response from master in closefile");
+			return response;
 		
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	

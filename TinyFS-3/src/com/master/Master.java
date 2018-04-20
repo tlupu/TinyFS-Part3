@@ -50,15 +50,6 @@ public class Master {
 			e.printStackTrace();
 		}
 		
-//		try {
-//			ClientSocket = serverSocket.accept();
-//			System.out.println("Accepted server socket");
-//			WriteOutput = new ObjectOutputStream(ClientSocket.getOutputStream());
-//			ReadInput = new ObjectInputStream(ClientSocket.getInputStream());
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-		
 		/* master needs to process requests from client */
 		while (true) {
 			
@@ -87,44 +78,52 @@ public class Master {
 						String dirname = ReadInput.readUTF();
 						CreateDir(src, dirname);
 					}
-//					else if (request == "DeleteDir") {
-//						// DeleteDir(String src, String dirname)
-//						String src = ReadInput.readUTF();
-//						String dirname = ReadInput.readUTF();
-//						DeleteDir(src, dirname);
-//					}
-//					else if (request == "RenameDir") {
-//						// RenameDir(String src, String NewName)
-//						String src = ReadInput.readUTF();
-//						String NewName = ReadInput.readUTF();
-//						RenameDir(src, NewName);
-//					}
+					else if (request == 'D') {
+						// DeleteDir(String src, String dirname)
+						String src = ReadInput.readUTF();
+						String dirname = ReadInput.readUTF();
+						DeleteDir(src, dirname);
+					}
+					else if (request == 'R') {
+						// RenameDir(String src, String NewName)
+						String src = ReadInput.readUTF();
+						String NewName = ReadInput.readUTF();
+						RenameDir(src, NewName);
+					}
 					else if (request == 'L') {
 						// ListDir(String tgt)
 						System.out.println("read request to list dir");
 						String tgt = ReadInput.readUTF();
 						ListDir(tgt);
 					}
-//					else if (request == "CreateFile") {
-//						String tatdir = ReadInput.readUTF();
-//						String filename = ReadInput.readUTF();
-//						CreateFile(tatdir, filename);
-//					}
-//					else if (request == "DeleteFile") {
-//						// DeleteFile(String tgtdir, String filename)
-//						String tatdir = ReadInput.readUTF();
-//						String filename = ReadInput.readUTF();
-//						DeleteFile(tatdir, filename);
-//					}
-//					else if (request == "OpenFile") {
-//						String filepath = ReadInput.readUTF();
-//						// figure out how to read object
-//						FileHandle filehandle = ReadInput.readObject();
-//						OpenFile(filepath, filehandle);
-//					}
+					else if (request == 'c') {
+						String tatdir = ReadInput.readUTF();
+						String filename = ReadInput.readUTF();
+						CreateFile(tatdir, filename);
+					}
+					else if (request == 'd') {
+						// DeleteFile(String tgtdir, String filename)
+						String tatdir = ReadInput.readUTF();
+						String filename = ReadInput.readUTF();
+						DeleteFile(tatdir, filename);
+					}
+					else if (request == 'o') {
+						String filepath = ReadInput.readUTF();
+						// figure out how to read object
+						FileHandle filehandle = (FileHandle) ReadInput.readObject();
+						OpenFile(filepath, filehandle);
+					}
+					else if (request == 'x') {
+						// figure out how to read object
+						FileHandle filehandle = (FileHandle) ReadInput.readObject();
+						CloseFile(filehandle);
+					}
 				} catch (IOException e) {
 					System.out.println("caught exception");
 					break;
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			}
 		}
