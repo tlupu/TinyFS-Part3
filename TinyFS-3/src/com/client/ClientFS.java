@@ -346,5 +346,16 @@ public class ClientFS {
 	
 		return FSReturnVals.Fail;
 	}
+	
+	public void CloseClientFS() {
+		try {
+			ReadInput.close();
+			WriteOutput.close();
+			ClientSocket.close();
+		} catch (IOException e) {
+			System.out.println("issues closing the client");
+			e.printStackTrace();
+		}
+	}
 
 }
