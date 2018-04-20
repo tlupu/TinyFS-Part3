@@ -80,6 +80,7 @@ public class ClientFS {
 				WriteOutput.writeChar('C');
 				WriteOutput.writeUTF(src);
 				WriteOutput.writeUTF(dirname);
+				WriteOutput.flush();
 				System.out.println("sent data to master in createdir");
 			}
 			
@@ -173,12 +174,22 @@ public class ClientFS {
 		try {
 			if (ClientSocket != null && WriteOutput != null && ReadInput != null) {
 				// send the request to create a directory
-				WriteOutput.writeUTF("ListDir");
+				WriteOutput.writeChar('L');
 				WriteOutput.writeUTF(tgt);
+				WriteOutput.flush();
+				System.out.println("sent data to master in listdir");
 			}
 			
 			// look into how to read a string array
-			String[] response = ReadInput.readObject();
+			int length = ReadInput.readInt();
+			String data[] = new String[length];
+			System.out.println("this is the length read in the client: " + length);
+			for (int i = 0; i < length; i++) {
+				data[i] = ReadInput.readUTF();
+			}
+			
+			System.out.println("recieved response from master in createdir");
+			return data;
 			
 		} catch (IOException e) {
 			e.printStackTrace();

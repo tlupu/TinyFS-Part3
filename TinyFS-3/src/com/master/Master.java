@@ -24,7 +24,7 @@ import javafx.util.Pair;
 
 public class Master {
 	
-	ServerSocket serverSocket;
+	ServerSocket ServerSocket;
 	Socket ClientSocket;
 	public ObjectOutputStream WriteOutput;
 	public ObjectInputStream ReadInput;
@@ -40,10 +40,10 @@ public class Master {
 	
 	public Master() {
 		
-		Socket clientSocket = null;
+		ClientSocket = null;
 		
 		try {
-			serverSocket = new ServerSocket(9000);
+			ServerSocket = new ServerSocket(9000);
 			System.out.println("Initialized server socket");
 		} catch (IOException e) {
 			System.out.println("Could not get I/O for the connection to: " + hostname);
@@ -63,7 +63,7 @@ public class Master {
 		while (true) {
 			
 			try {
-				ClientSocket = serverSocket.accept();
+				ClientSocket = ServerSocket.accept();
 				System.out.println("Accepted server socket");
 				WriteOutput = new ObjectOutputStream(ClientSocket.getOutputStream());
 				ReadInput = new ObjectInputStream(ClientSocket.getInputStream());
@@ -73,13 +73,12 @@ public class Master {
 			}
 			
 			while (!ClientSocket.isClosed()) {
-				System.out.println("client socket is not closed on master");
+				
 				try {
 					char request = 'a';
-					if (ReadInput.available() != 0) {
-						request = ReadInput.readChar();
-						System.out.println("this is the request recieved in master: " + request);
-					}
+					System.out.println("trying to read the char...");
+					request = ReadInput.readChar();
+					System.out.println("this is the request recieved in master: " + request);
 
 					if (request == 'C') {
 						// CreateDir(String src, String dirname)
@@ -100,11 +99,12 @@ public class Master {
 //						String NewName = ReadInput.readUTF();
 //						RenameDir(src, NewName);
 //					}
-//					else if (request == "ListDir") {
-//						// ListDir(String tgt)
-//						String tgt = ReadInput.readUTF();
-//						ListDir(tgt);
-//					}
+					else if (request == 'L') {
+						// ListDir(String tgt)
+						System.out.println("read request to list dir");
+						String tgt = ReadInput.readUTF();
+						ListDir(tgt);
+					}
 //					else if (request == "CreateFile") {
 //						String tatdir = ReadInput.readUTF();
 //						String filename = ReadInput.readUTF();
@@ -123,6 +123,7 @@ public class Master {
 //						OpenFile(filepath, filehandle);
 //					}
 				} catch (IOException e) {
+					System.out.println("caught exception");
 					break;
 				}
 			}
@@ -241,12 +242,28 @@ public class Master {
 	}
 	
 	
-	public String[] ListDir(String tgt) {
-		Master.directories = new ArrayList<String> ();
-		listf(tgt.substring(1));
-		System.out.println(Master.directories.size());
-		String [] directories = Master.directories.toArray(new String[Master.directories.size()]);
-		return directories;
+	public void ListDir(String tgt) {
+		
+		try {
+			Master.directories = new ArrayList<String> ();
+			listf(tgt.substring(1));
+			System.out.println(Master.directories.size());
+			String [] directories = Master.directories.toArray(new String[Master.directories.size()]);
+			// first write the size of the array
+			WriteOutput.writeInt(directories.length);
+			// then write the array
+			for (int i = 0; i < directories.length; i++) {
+				WriteOutput.writeUTF(directories[i]);
+			}
+			
+			System.out.println("wrote array of strings to client from master");
+			
+			WriteOutput.flush();
+			
+		} catch (IOException e) {
+			System.out.println("could not list dir in master");
+			e.printStackTrace();
+		} 
 	}
 	
 	public void listf(String directoryName) {
