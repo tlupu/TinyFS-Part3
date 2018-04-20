@@ -115,10 +115,9 @@ public class ClientFS {
 		try {
 			if (ClientSocket != null && WriteOutput != null && ReadInput != null) {
 				// send the request to create a directory
-				WriteOutput.writeUTF("DeleteDir");
+				WriteOutput.writeChar('D');
 				WriteOutput.writeUTF(src);
 				WriteOutput.writeUTF(dirname);
-				
 				WriteOutput.flush();
 			}
 			
@@ -151,7 +150,7 @@ public class ClientFS {
 		try {
 			if (ClientSocket != null && WriteOutput != null && ReadInput != null) {
 				// send the request to create a directory
-				WriteOutput.writeUTF("RenameDir");
+				WriteOutput.writeChar('R');
 				WriteOutput.writeUTF(src);
 				WriteOutput.writeUTF(NewName);
 				
@@ -188,7 +187,6 @@ public class ClientFS {
 				// send the request to create a directory
 				WriteOutput.writeChar('L');
 				WriteOutput.writeUTF(tgt);
-				
 				WriteOutput.flush();
 				System.out.println("sent data to master in listdir");
 			}

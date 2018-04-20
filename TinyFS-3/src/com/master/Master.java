@@ -120,6 +120,7 @@ public class Master {
 					}
 				} catch (IOException e) {
 					System.out.println("caught exception");
+					e.printStackTrace();
 					break;
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
@@ -166,7 +167,6 @@ public class Master {
 //					return FSReturnVals.Success;	
 				}
 			}
-			
 			WriteOutput.flush();
 		} catch (IOException e) {
 			System.out.println("could not create dir in master");
@@ -217,12 +217,14 @@ public class Master {
 //		    		return FSReturnVals.SrcDirNotExistent;
 		    }
 		    	else{   
+		    		System.out.println("Exists: " + directory.getPath());
 		    		if(directory.list().length != 0) {
 		    			WriteOutput.writeUnshared(FSReturnVals.DirNotEmpty);
 //		    	        return FSReturnVals.DirNotEmpty;
 		    		}     
 		    		else {
 		    			directory.delete();
+		    			System.out.println("over here");
 		    			WriteOutput.writeUnshared(FSReturnVals.DestDirExists);
 //		    	        return FSReturnVals.DestDirExists;
 		    		}
@@ -264,18 +266,23 @@ public class Master {
 		
 		try {
 			Master.directories = new ArrayList<String> ();
-			listf(tgt.substring(1));
-			System.out.println(Master.directories.size());
-			String [] directories = Master.directories.toArray(new String[Master.directories.size()]);
-			// first write the size of the array
-			WriteOutput.writeInt(directories.length);
-			// then write the array
-			for (int i = 0; i < directories.length; i++) {
-				WriteOutput.writeUTF(directories[i]);
+			File directory = new File(tgt.substring(1));
+			if (!directory.exists()) {
+				WriteOutput.writeInt(0);
+				WriteOutput.writeUTF("");
 			}
-			
+			else {
+				listf(tgt.substring(1));
+				System.out.println(Master.directories.size());
+				String [] directories = Master.directories.toArray(new String[Master.directories.size()]);
+				// first write the size of the array
+				WriteOutput.writeInt(directories.length);
+				// then write the array
+				for (int i = 0; i < directories.length; i++) {
+					WriteOutput.writeUTF(directories[i]);
+				}	
+			}
 			System.out.println("wrote array of strings to client from master");
-			
 			WriteOutput.flush();
 			
 		} catch (IOException e) {
