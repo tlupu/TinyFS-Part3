@@ -50,40 +50,44 @@ public class Master {
 			e.printStackTrace();
 		}
 		
-		try {
-			ClientSocket = serverSocket.accept();
-			System.out.println("Accepted server socket");
-			WriteOutput = new ObjectOutputStream(ClientSocket.getOutputStream());
-			ReadInput = new ObjectInputStream(ClientSocket.getInputStream());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			ClientSocket = serverSocket.accept();
+//			System.out.println("Accepted server socket");
+//			WriteOutput = new ObjectOutputStream(ClientSocket.getOutputStream());
+//			ReadInput = new ObjectInputStream(ClientSocket.getInputStream());
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		
 		/* master needs to process requests from client */
-//		while (true) {
-//			
-//			try {
-//				ClientSocket = serverSocket.accept();
-//				System.out.println("Accepted server socket");
-//				WriteOutput = new ObjectOutputStream(ClientSocket.getOutputStream());
-//				ReadInput = new ObjectInputStream(ClientSocket.getInputStream());
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//			
-//			while (!clientSocket.isClosed()) {
-//				
-//				try {
-//					String request;
-//					// read request from input stream
-//					request = ReadInput.readUTF();
-//					
-//					if (request == "CreateDir") {
-//						// CreateDir(String src, String dirname)
-//						String src = ReadInput.readUTF();
-//						String dirname = ReadInput.readUTF();
-//						CreateDir(src, dirname);
-//					}
+		while (true) {
+			
+			try {
+				ClientSocket = serverSocket.accept();
+				System.out.println("Accepted server socket");
+				WriteOutput = new ObjectOutputStream(ClientSocket.getOutputStream());
+				ReadInput = new ObjectInputStream(ClientSocket.getInputStream());
+				System.out.println("initialized output and input streams in master");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			while (!ClientSocket.isClosed()) {
+				System.out.println("client socket is not closed on master");
+				try {
+					char request = 'a';
+					if (ReadInput.available() != 0) {
+						request = ReadInput.readChar();
+						System.out.println("this is the request recieved in master: " + request);
+					}
+
+					if (request == 'C') {
+						// CreateDir(String src, String dirname)
+						System.out.println("read CreateDir request");
+						String src = ReadInput.readUTF();
+						String dirname = ReadInput.readUTF();
+						CreateDir(src, dirname);
+					}
 //					else if (request == "DeleteDir") {
 //						// DeleteDir(String src, String dirname)
 //						String src = ReadInput.readUTF();
@@ -118,40 +122,56 @@ public class Master {
 //						FileHandle filehandle = ReadInput.readObject();
 //						OpenFile(filepath, filehandle);
 //					}
-//				} catch (IOException e) {
-//					break;
-//				}
-//			}
-//		}
+				} catch (IOException e) {
+					break;
+				}
+			}
+		}
 	}
 	
-	public FSReturnVals CreateDir(String tgtdir, String filename) {
-		
-		File newDir;
-		//if creating the root directory
-		if (tgtdir.equals("/")) {
-			newDir = new File(filename);
-			if (newDir.exists()) {
-				return FSReturnVals.DestDirExists;
-			}
-			newDir.mkdir();
-			return FSReturnVals.Success;
-		}
-		//if creating a sub-directory
-		else {
-			File parentDir = new File(tgtdir.substring(1));
-			if (!parentDir.exists()) {
-				return FSReturnVals.SrcDirNotExistent;
-			}
-			else {
-				newDir = new File(parentDir, filename);
+	public void CreateDir(String tgtdir, String filename) {
+		try {
+			File newDir;
+			//if creating the root directory
+			if (tgtdir.equals("/")) {
+				newDir = new File(filename);
 				if (newDir.exists()) {
-					return FSReturnVals.DestDirExists;
+					WriteOutput.writeUnshared(FSReturnVals.DestDirExists);
+					System.out.println("wrote dest dir exists to client from master");
+//					return FSReturnVals.DestDirExists;
 				}
-				newDir.mkdirs();
-				return FSReturnVals.Success;	
+				newDir.mkdir();
+				WriteOutput.writeUnshared(FSReturnVals.Success);
+				System.out.println("wrote success to client from master");
+//				return FSReturnVals.Success;
 			}
-		}
+			//if creating a sub-directory
+			else {
+				File parentDir = new File(tgtdir.substring(1));
+				if (!parentDir.exists()) {
+					WriteOutput.writeUnshared(FSReturnVals.SrcDirNotExistent);
+					System.out.println("wrote SrcDirNotExistent to client from master");
+//					return FSReturnVals.SrcDirNotExistent;
+				}
+				else {
+					newDir = new File(parentDir, filename);
+					if (newDir.exists()) {
+						WriteOutput.writeUnshared(FSReturnVals.DestDirExists);
+						System.out.println("wrote DestDirExists to client from master");
+//						return FSReturnVals.DestDirExists;
+					}
+					newDir.mkdirs();
+					WriteOutput.writeUnshared(FSReturnVals.Success);
+					System.out.println("wrote Success to client from master");
+//					return FSReturnVals.Success;	
+				}
+			}
+			
+			WriteOutput.flush();
+		} catch (IOException e) {
+			System.out.println("could not create dir in master");
+			e.printStackTrace();
+		} 
 		
 //		/* Master invokes createChunk on the chunkserver */
 //		ChunkServer chunkserver = new ChunkServer();

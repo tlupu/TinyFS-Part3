@@ -18,7 +18,7 @@ import com.master.Master;
 
 public class ClientFS {
 	public static ArrayList<String> directories;
-	Master master = new Master();
+//	Master master = new Master();
 	
 	public static ChunkServer cs = null;
 	public Socket ClientSocket;
@@ -77,15 +77,21 @@ public class ClientFS {
 		try {
 			if (ClientSocket != null && WriteOutput != null && ReadInput != null) {
 				// send the request to create a directory
-				WriteOutput.writeUTF("CreateDir");
+				WriteOutput.writeChar('C');
 				WriteOutput.writeUTF(src);
 				WriteOutput.writeUTF(dirname);
+				System.out.println("sent data to master in createdir");
 			}
 			
 			// look into how to read an enum
-			FSReturnVals response = ReadInput.readObject();
+			FSReturnVals response = (FSReturnVals) ReadInput.readUnshared();
+			System.out.println("recieved response from master in createdir");
+			return response;
 			
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
