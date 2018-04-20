@@ -197,47 +197,66 @@ public class Master {
 		
 	}
 	
-	public FSReturnVals DeleteDir(String tgtdir, String filename) {
+	public void DeleteDir(String tgtdir, String filename) {
 		/* Rename the file to a hidden file only known to the master */
 		/* Garbage collect orphaned chunks. */
-
-		File directory;
-		if (tgtdir.equals("/")) {
-			directory = new File(filename);
-		}
-		else {
-			File parentDir = new File(tgtdir.substring(1));
-			directory = new File(parentDir, filename);			
-		}
-		//make sure directory exists
-	    	if(!directory.exists()){
-	    		System.out.println("Does not exists: " + directory.getPath());
-	    		return FSReturnVals.SrcDirNotExistent;
-	    }
-	    	else{   
-	    		if(directory.list().length != 0) {
-	    	        return FSReturnVals.DirNotEmpty;
-	    		}     
-	    		else {
-	    			directory.delete();
-	    	        return FSReturnVals.DestDirExists;
-	    		}
-		}
-
+		
+		try {
+			File directory;
+			if (tgtdir.equals("/")) {
+				directory = new File(filename);
+			}
+			else {
+				File parentDir = new File(tgtdir.substring(1));
+				directory = new File(parentDir, filename);			
+			}
+			//make sure directory exists
+		    	if(!directory.exists()){
+		    		System.out.println("Does not exists: " + directory.getPath());
+		    		WriteOutput.writeUnshared(FSReturnVals.SrcDirNotExistent);
+//		    		return FSReturnVals.SrcDirNotExistent;
+		    }
+		    	else{   
+		    		if(directory.list().length != 0) {
+		    			WriteOutput.writeUnshared(FSReturnVals.DirNotEmpty);
+//		    	        return FSReturnVals.DirNotEmpty;
+		    		}     
+		    		else {
+		    			directory.delete();
+		    			WriteOutput.writeUnshared(FSReturnVals.DestDirExists);
+//		    	        return FSReturnVals.DestDirExists;
+		    		}
+			}
+		    	
+		    	WriteOutput.flush();
+		} catch (IOException e) {
+			System.out.println("could not delete dir in master");
+			e.printStackTrace();
+		} 
 	}
 	
-	public FSReturnVals RenameDir(String src, String NewName) {
-		File dir = new File(src.substring(1));
-	    if (!dir.isDirectory()) {
-	    		return FSReturnVals.SrcDirNotExistent;
-	    }
-	    File newDir = new File(NewName.substring(1));
-	    if (newDir.exists()) {
-	    		System.out.println("new dir already exists");
-	    		return FSReturnVals.DestDirExists;
-	    }
-	    dir.renameTo(newDir);
-		return FSReturnVals.Success;
+	public void RenameDir(String src, String NewName) {
+		try {
+			File dir = new File(src.substring(1));
+		    if (!dir.isDirectory()) {
+		    		WriteOutput.writeUnshared(FSReturnVals.SrcDirNotExistent);
+//		    		return FSReturnVals.SrcDirNotExistent;
+		    }
+		    File newDir = new File(NewName.substring(1));
+		    if (newDir.exists()) {
+		    		System.out.println("new dir already exists");
+		    		WriteOutput.writeUnshared(FSReturnVals.DestDirExists);
+//		    		return FSReturnVals.DestDirExists;
+		    }
+		    dir.renameTo(newDir);
+		    WriteOutput.writeUnshared(FSReturnVals.Success);
+//			return FSReturnVals.Success;
+		    
+		    WriteOutput.flush();
+		} catch (IOException e) {
+			System.out.println("could not rename dir in master");
+			e.printStackTrace();
+		} 
 	}
 	
 	
@@ -278,40 +297,61 @@ public class Master {
 	    }
 	}
 	
-	public FSReturnVals CreateFile(String tgtdir, String filename) {
-		File directory = new File(tgtdir.substring(1));
-		if (!directory.exists()) {
-			return FSReturnVals.SrcDirNotExistent;
-		}
-		String fName = tgtdir.substring(1) + filename;
-		File file = new File(fName);
-		if (file.exists()) {
-			return FSReturnVals.FileExists;
-		}
-		else {
-			try {
-				OutputStream out = new FileOutputStream(file);
-				out.close();	
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+	public void CreateFile(String tgtdir, String filename) {
+		
+		try {
+			File directory = new File(tgtdir.substring(1));
+			if (!directory.exists()) {
+				WriteOutput.writeUnshared(FSReturnVals.SrcDirNotExistent);
+//				return FSReturnVals.SrcDirNotExistent;
 			}
-			return FSReturnVals.Success;
-		}
+			String fName = tgtdir.substring(1) + filename;
+			File file = new File(fName);
+			if (file.exists()) {
+				WriteOutput.writeUnshared(FSReturnVals.FileExists);
+//				return FSReturnVals.FileExists;
+			}
+			else {
+				try {
+					OutputStream out = new FileOutputStream(file);
+					out.close();	
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				WriteOutput.writeUnshared(FSReturnVals.Success);
+//				return FSReturnVals.Success;
+			}
+			
+			WriteOutput.flush();
+		} catch (IOException e) {
+			System.out.println("could not create file in master");
+			e.printStackTrace();
+		} 
 	}
 	
-	public FSReturnVals DeleteFile(String tgtdir, String filename) {
-		File directory = new File(tgtdir.substring(1));
-		if (!directory.exists()) {
-			return FSReturnVals.SrcDirNotExistent;
-		}
-		String fName = tgtdir.substring(1) + filename;
-		File file = new File(fName);
-		if (!file.exists()) {
-			return FSReturnVals.FileDoesNotExist;
-		}
-		file.delete();
-		return FSReturnVals.Success;		
+	public void DeleteFile(String tgtdir, String filename) {
+		try {
+			File directory = new File(tgtdir.substring(1));
+			if (!directory.exists()) {
+				WriteOutput.writeUnshared(FSReturnVals.SrcDirNotExistent);
+//				return FSReturnVals.SrcDirNotExistent;
+			}
+			String fName = tgtdir.substring(1) + filename;
+			File file = new File(fName);
+			if (!file.exists()) {
+				WriteOutput.writeUnshared(FSReturnVals.FileDoesNotExist);
+//				return FSReturnVals.FileDoesNotExist;
+			}
+			file.delete();
+			WriteOutput.writeUnshared(FSReturnVals.Success);
+//			return FSReturnVals.Success;	
+			
+			WriteOutput.flush();
+		} catch (IOException e) {
+			System.out.println("could not delete file in master");
+			e.printStackTrace();
+		} 
 	}
 	
 	public FSReturnVals OpenFile(String FilePath, FileHandle ofh) {
