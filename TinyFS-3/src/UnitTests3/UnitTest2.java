@@ -118,7 +118,7 @@ public class UnitTest2 {
 		}
 		System.out.println(TestName + "Success!");
 		
-		cfs.CloseClientFS();
+//		cfs.CloseClientFS();
 	}
 	
 	public static boolean isDirExist(String[] arr, String token){

@@ -120,7 +120,6 @@ public class Master {
 					}
 				} catch (IOException e) {
 					System.out.println("caught exception");
-					e.printStackTrace();
 					break;
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
