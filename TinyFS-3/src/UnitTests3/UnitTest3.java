@@ -12,8 +12,10 @@ public class UnitTest3 {
 	
 	public static int N = 755;
 	static final String TestName = "Unit Test 3: ";
+	static ClientFS clientFS = null;
 
 	public static void main(String[] args) {
+
 		ClientFS clientFS = null;
 		//unit test 1 call
 		UnitTest1 ut1 = new UnitTest1();
@@ -111,6 +113,21 @@ public class UnitTest3 {
 		
 		
 		//ClientFS clientFS = new ClientFS();
+//		ClientFS cfs = new ClientFS();
+//		UnitTest2 ut2 = new UnitTest2();
+//		ut2.test2(cfs);
+		
+		UnitTest2 ut2 = new UnitTest2();
+
+		if (ut2.clientFS != null) {
+			clientFS = ut2.clientFS;
+		}
+		else {
+			clientFS = new ClientFS();
+		}
+		
+		ut2.test2(clientFS);
+
 		System.out.println(TestName + "CreateDir /ShahramGhandeharizadeh/CSCI485");
 		String dir1 = "ShahramGhandeharizadeh";
 		FSReturnVals fsrv = clientFS.CreateDir("/" + dir1 + "/", "CSCI485");
